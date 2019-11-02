@@ -9,7 +9,7 @@ Blue - #0197f6
 Green - #6eeb83
 Bg black - #1c1c1c
 black - #282b28
-black - #f7f9f9
+white - #f7f9f9
 '''
 class App:
     def __init__(self, master):
@@ -67,12 +67,12 @@ class App:
         else:
             self.master.title("Pyditor")
 
-    def newFile(self):
+    def newFile(self, *args):
         self.text_area.Text.delete(1.0, END)
         self.filename = None
         self.setTitle()
 
-    def openFile(self):
+    def openFile(self, *args):
         print(self.filename)
         self.filename = filedialog.askopenfilename(filetypes=[("All files", "*.*")])
         if self.filename:
@@ -82,7 +82,7 @@ class App:
                 self.text_area.Text.insert(1.0, f.read())
             self.setTitle(self.filename)
 
-    def saveFile(self):
+    def saveFile(self, *args):
         if self.filename:
             try:
                 with open(self.filename, "w") as f:
@@ -92,7 +92,7 @@ class App:
         else:
             self.saveFileAs()
 
-    def saveFileAs(self):
+    def saveFileAs(self, *args):
         try:
             new_file = filedialog.asksaveasfilename(initialfile="Untitled.txt", filetypes=[("All files", "*.*")])
             with open(new_file, "w") as nf:
@@ -115,6 +115,14 @@ class TextArea(object):
         self.Text.pack(side=LEFT, fill=BOTH, expand=True)
         self.scroll.pack(side=RIGHT,fill=Y)
 
+        self.shortcuts(parent)
+
+    def shortcuts(self, parent):
+        self.Text.bind('<Control-s>', parent.saveFile)
+        self.Text.bind('<Control-S>', parent.saveFileAs)
+        self.Text.bind('<Control-o>', parent.openFile)
+        self.Text.bind('<Control-n>', parent.newFile)
+
 
 
 
@@ -126,7 +134,7 @@ class MenuBar(object):
         self.file_dropdown = Menu(self.bar, font=(parent.font, 12), bg="#282b28" , fg="#f7f9f9")
         self.file_dropdown.add_command(label="New", command=parent.newFile)
         self.file_dropdown.add_command(label="Open", command=parent.openFile)
-        self.file_dropdown.add_command(label="Save", command=parent.saveFile)
+        self.file_dropdown.add_command(label="Save", command=parent.saveFile, accelerator="Crtl+S")
         self.file_dropdown.add_command(label="Save As", command=parent.saveFileAs)
         
         self.bar.add_cascade(label="File", menu=self.file_dropdown)
