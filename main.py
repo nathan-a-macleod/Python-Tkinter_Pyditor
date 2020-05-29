@@ -32,8 +32,9 @@ class App:
         for tag in self.text_area.Text.tag_names():
             self.text_area.Text.tag_delete(tag)
 
-        red_highlight = ["for","while", "if", "else"]
-        blue_highlight = ["int", "string","float"]
+        red_highlight = ["for", "while", "if", "else", "elif", "break", "continue", "return", "in", "is", "and", "or", "not", "class", "def", "self"]
+        blue_highlight = ["int", "string", "float", "double", "long", "char", "var"]
+        green_highlight = ["switch", "case", "this", "False", "false", "True", "true", "None", "none", "null", "Null"] # A test
 
         for word in red_highlight:  
             idx = "1.0"
@@ -56,6 +57,19 @@ class App:
                     idx2 = self.text_area.Text.index("%s+%dc" % (idx, length.get()))
                     self.text_area.Text.tag_add("blue", idx, idx2)
                     self.text_area.Text.tag_config("blue", foreground="#0197f6")
+                    idx = idx2
+                else: break
+
+
+        for word in green_highlight:  
+            idx = "1.0"
+            while True:
+                length = IntVar()
+                idx = self.text_area.Text.search(r'(?:^|\s)' + word + r'(?:\s|$)', idx, nocase=1, stopindex='end',count=length, regexp = True)
+                if idx:
+                    idx2 = self.text_area.Text.index("%s+%dc" % (idx, length.get()))
+                    self.text_area.Text.tag_add("green", idx, idx2)
+                    self.text_area.Text.tag_config("green", foreground="#74b543")
                     idx = idx2
                 else: break
 
@@ -103,12 +117,20 @@ class App:
         except Exception as error:
             print(error)
 
+    def aboutPopup(self):
+        rootPopup = Tk()
+        rootPopup.title("About")
 
+        textLabel = Label(rootPopup, text="This text editor is a fork of 'https://github.com/NatanCostaWar/Python-Tkinter_Pyditor' made by ChilliTech.")
+        textLabel.pack()
+        closePopupButton = Button(rootPopup, text="OK", command=rootPopup.destroy, width=10)
+        closePopupButton.pack()
+        mainloop()
 
 class TextArea(object):
     def __init__(self, parent):
         #MAIN TEXT AREA
-        self.Text = Text(parent.master, font=(parent.font, 16), fg="#f7f9f9", bg="#1c1c1c", insertbackground="#f7f9f9")
+        self.Text = Text(parent.master, font=(parent.font, 10), fg="#f7f9f9", bg="#1c1c1c", insertbackground="#f5f7f7")
         self.scroll = Scrollbar(parent.master, command=self.Text.yview)
         self.Text.configure(yscrollcommand=self.scroll.set)
 
@@ -128,27 +150,24 @@ class TextArea(object):
 
 class MenuBar(object):
     def __init__(self, parent):
-        self.bar = Menu(parent.master)
+        self.bar = Menu(parent.master, bg="#282b28", fg="#f7f9f9", relief=FLAT)
         parent.master.config(menu=self.bar)
 
-        self.file_dropdown = Menu(self.bar, font=(parent.font, 12), bg="#282b28" , fg="#f7f9f9")
-        self.file_dropdown.add_command(label="New", command=parent.newFile)
-        self.file_dropdown.add_command(label="Open", command=parent.openFile)
-        self.file_dropdown.add_command(label="Save", command=parent.saveFile, accelerator="Crtl+S")
-        self.file_dropdown.add_command(label="Save As", command=parent.saveFileAs)
+        self.file_dropdown = Menu(self.bar, font=(parent.font, 10), bg="#282b28" , fg="#f7f9f9")
+        self.file_dropdown.add_command(label="New", command=parent.newFile, accelerator="Ctrl-N")
+        self.file_dropdown.add_command(label="Open", command=parent.openFile, accelerator="Ctrl-O")
+        self.file_dropdown.add_command(label="Save", command=parent.saveFile, accelerator="Ctrl-S")
+        self.file_dropdown.add_command(label="Save As", command=parent.saveFileAs, accelerator="Ctrl-Shift-S")
         
         self.bar.add_cascade(label="File", menu=self.file_dropdown)
 
         #self.button = Button(parent.master, text="X", fg="red", command=parent.master.quit)
         #self.button.pack(side=RIGHT)
 
-class LeftMenu(object):
-    def __init__(self, parent):
-        self.label = Label(parent.master, text="Menu")
-        self.label.pack(side=LEFT)
+        self.more_dropdown = Menu(self.bar, font=(parent.font, 10), bg="#282b28", fg="#f7f9f9")
+        self.more_dropdown.add_command(label="About", command=parent.aboutPopup)
 
-
-
+        self.bar.add_cascade(label="More", menu=self.more_dropdown)
 
 root = Tk()
 app = App(root)
